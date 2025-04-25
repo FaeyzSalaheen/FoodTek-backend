@@ -1,0 +1,140 @@
+﻿using Foodtek.DTOs;
+using Foodtek.DTOs.SignIn.SignInInput;
+using Foodtek.DTOs.SignIn.SignInOutput;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR.Protocol;
+using Microsoft.Data.SqlClient;
+using MyTasks.Helpers.Validations;
+using System.ComponentModel.DataAnnotations;
+using System.Data;
+using System.Data.Common;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+
+namespace Foodtek.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
+    {
+
+        [HttpPost]
+        [Route("[action]")]
+        public async Task<IActionResult> SignUp(SignUpInputDTO input)
+        {
+            try
+            {
+                if (!ValidationHelper.IsValidEmail(input.Email) || !ValidationHelper.IsValidPassword(input.password))
+                    throw new Exception("Invalid Email or Password");
+                {
+
+                    string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
+                    SqlConnection connection = new SqlConnection(connectionString);
+                    SqlCommand command = new SqlCommand(
+                    $"INSERT INTO Users (FullName, Email, Password,Username,CreatedBy,UpdatedBy,birthdate,role,PhoneNumber) VALUES (@FullName, @Email, @Password,@Username,@CreatedBy,@UpdatedBy,@birthdate,@role,@PhoneNumber)",
+                     connection
+                      );
+
+                    command.Parameters.AddWithValue("@FullName", input.fullname);
+                    command.Parameters.AddWithValue("@Email", input.Email);
+                    command.Parameters.AddWithValue("@PhoneNumber", input.PhoneNumber);
+                    command.Parameters.AddWithValue("@Password", input.password);
+                    command.Parameters.AddWithValue("@username", input.Username);
+                    command.Parameters.AddWithValue("@CreatedBy", input.CreatedBy);
+                    command.Parameters.AddWithValue("@UpdatedBy", input.UpdatedBy);
+                    command.Parameters.AddWithValue("@birthdate", input.birthdate);
+                    command.Parameters.AddWithValue("@UpdatedAt", input.UpdatedAt);
+                    command.Parameters.AddWithValue("@role", input.role);
+                    
+                    
+                    
+
+
+                    command.CommandType = CommandType.Text;
+
+                    connection.Open();
+                    int result = command.ExecuteNonQuery();
+                    connection.Close();
+                
+                    if (result > 0) 
+                        return StatusCode(201, "Account Created Successfully");
+                       else
+                            return StatusCode(400, "Failed to create account");
+                    
+                }
+                
+                   
+                
+
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An Error Was Occurred: {ex.Message}");
+            }
+        }
+
+        [HttpPost("[action]")]
+        public async Task<IActionResult> Signin(SignInInputDTO input)
+        {
+
+            var SignInOutput = new SignInOutputDTO();
+            try
+            {
+                if (!ValidationHelper.IsValidEmail(input.Email) || !ValidationHelper.IsValidPassword(input.password))
+                    throw new Exception("Invalid Email or Password");
+
+
+                string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
+                    SqlConnection connection = new SqlConnection(connectionString);
+                string query = $"SELECT Id ,fullname  FROM Users WHERE Email = '@Email' AND Password ='@password'";
+                SqlCommand command = new SqlCommand(query, connection);
+                    command.Parameters.AddWithValue("@Email", input.Email);
+                    command.Parameters.AddWithValue("@Password", input.password);
+                    connection.Open();
+                    command.CommandType = CommandType.Text;
+                    SqlDataAdapter adapter = new SqlDataAdapter(command);
+                    DataTable dt = new DataTable();
+                    adapter.Fill(dt);
+                   
+                if(dt.Rows.Count==0)
+                        throw new Exception("Invalid Email or Password");
+                    
+                if (dt.Rows.Count >1 ) 
+                        throw new Exception("Somthing wrong");
+
+
+
+                foreach (DataRow row in dt.Rows)
+                {
+                    SignInOutput.Id= Convert.ToInt32( row["Id"]);
+
+                    SignInOutput.Name = Convert.ToString(row["Name"]);
+                    }
+                    return Ok (SignInOutput);    
+            }
+            catch (Exception ex)
+            {
+
+                return StatusCode(500, $"An Error Was Occured {ex.Message}");
+            }
+        }
+        [HttpPost("restpassword")]
+        public async Task<IActionResult> restpassword()
+        {
+            try
+            {
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { Error = $"An error has been detected: {ex.Message}" });
+            }
+        }
+       
+       
+
+
+
+    }
+}
