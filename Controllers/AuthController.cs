@@ -32,7 +32,7 @@ namespace Foodtek.Controllers
                     string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
                     SqlConnection connection = new SqlConnection(connectionString);
                     SqlCommand command = new SqlCommand(
-                    $"INSERT INTO Users (FullName, Email, Password,Username,CreatedBy,UpdatedBy,birthdate,role,PhoneNumber) VALUES (@FullName, @Email, @Password,@Username,@CreatedBy,@UpdatedBy,@birthdate,@role,@PhoneNumber)",
+                    $"INSERT INTO Users (FullName, Email, Password,Username,CreatedBy,UpdatedBy,birthdate,role,PhoneNumber,CreatedAt) VALUES (@FullName, @Email, @Password,@Username,@CreatedBy,@UpdatedBy,@birthdate,@role,@PhoneNumber)",
                      connection
                       );
 
@@ -41,8 +41,8 @@ namespace Foodtek.Controllers
                     command.Parameters.AddWithValue("@PhoneNumber", input.PhoneNumber);
                     command.Parameters.AddWithValue("@Password", input.password);
                     command.Parameters.AddWithValue("@username", input.Username);
-                    command.Parameters.AddWithValue("@CreatedBy", input.CreatedBy);
-                    command.Parameters.AddWithValue("@UpdatedBy", input.UpdatedBy);
+                    command.Parameters.AddWithValue("@CreatedBy", "system ");
+                    command.Parameters.AddWithValue("@UpdatedBy", "system");
                     command.Parameters.AddWithValue("@birthdate", input.birthdate);
                     command.Parameters.AddWithValue("@UpdatedAt", input.UpdatedAt);
                     command.Parameters.AddWithValue("@role", input.role);
