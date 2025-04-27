@@ -7,6 +7,8 @@
           public string? CreatedAt { get; set; }
           public string? UpdatedBy { get; set; }
           public string? UpdatedAt { get; set; }
-      
+          public int IsActive { get; set; }
+
+
     }
 }
