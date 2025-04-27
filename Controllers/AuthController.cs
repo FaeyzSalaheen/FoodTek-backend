@@ -33,7 +33,8 @@ namespace Foodtek.Controllers
                     string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
                     SqlConnection connection = new SqlConnection(connectionString);
                     SqlCommand command = new SqlCommand(
-                    $"INSERT INTO Users (FullName, Email, Password,Username,CreatedBy,UpdatedBy,birthdate,role,PhoneNumber,CreatedAt) VALUES (@FullName, @Email, @Password,@Username,@CreatedBy,@UpdatedBy,@birthdate,@role,@PhoneNumber)",
+                    "INSERT INTO Users (FullName, Email, Password, Username, CreatedBy, UpdatedBy, birthdate, role, PhoneNumber, CreatedAt, UpdatedAt) " +
+                    "VALUES (@FullName, @Email, @Password, @Username, @CreatedBy, @UpdatedBy, @birthdate, @role, @PhoneNumber, @CreatedAt, @UpdatedAt)",
                      connection
                       );
 
@@ -41,15 +42,13 @@ namespace Foodtek.Controllers
                     command.Parameters.AddWithValue("@Email", input.Email);
                     command.Parameters.AddWithValue("@PhoneNumber", input.PhoneNumber);
                     command.Parameters.AddWithValue("@Password", input.password);
-                    command.Parameters.AddWithValue("@username", input.Username);
-                    command.Parameters.AddWithValue("@CreatedBy", "system ");
+                    command.Parameters.AddWithValue("@Username", input.Username);
+                    command.Parameters.AddWithValue("@CreatedBy", "system");
                     command.Parameters.AddWithValue("@UpdatedBy", "system");
                     command.Parameters.AddWithValue("@birthdate", input.birthdate);
+                    command.Parameters.AddWithValue("@CreatedAt", input.CreatedAt);
                     command.Parameters.AddWithValue("@UpdatedAt", input.UpdatedAt);
                     command.Parameters.AddWithValue("@role", input.role);
-                    
-                    
-                    
 
 
                     command.CommandType = CommandType.Text;
@@ -64,9 +63,6 @@ namespace Foodtek.Controllers
                             return StatusCode(400, "Failed to create account");
                     
                 }
-                
-                   
-                
 
             }
             catch (Exception ex)
@@ -103,8 +99,6 @@ namespace Foodtek.Controllers
                     
                 if (dt.Rows.Count >1 ) 
                         throw new Exception("Somthing wrong");
-
-
 
                 foreach (DataRow row in dt.Rows)
                 {

@@ -12,11 +12,11 @@
       public string? password { get; set; }
       public string ProfileImage { get; set; }
       public DateTime? JoinDate { get; set; }
-       public int IsActive { get; set; }
-       public string? CreatedBy { get; set; }
-        public string? CreatedAt { get; set; }
-        public string? UpdatedBy { get; set; }
-        public string? UpdatedAt { get; set; }
+       //public int IsActive { get; set; }
+       //public string? CreatedBy { get; set; }
+       // public string? CreatedAt { get; set; }
+       // public string? UpdatedBy { get; set; }
+       // public string? UpdatedAt { get; set; }
         public DateTime? birthdate { get; set; }
         public int role { get; set; }
 
