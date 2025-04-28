@@ -1,4 +1,5 @@
 ﻿using Foodtek.DTOs;
+using Foodtek.DTOs.Restpassword.RestpasswordInput;
 using Foodtek.DTOs.SignIn.SignInInput;
 using Foodtek.DTOs.SignIn.SignInOutput;
 using Microsoft.AspNetCore.Http;
@@ -26,7 +27,7 @@ namespace Foodtek.Controllers
         {
             try
             {
-                if (!ValidationHelper.IsValidEmail(input.Email) || !ValidationHelper.IsValidPassword(input.password))
+                if (!ValidationHelper.IsValidEmail(input.Email) || ValidationHelper.IsValidPassword(input.password))
                     throw new Exception("Invalid Email or Password");
                 {
 
@@ -72,7 +73,7 @@ namespace Foodtek.Controllers
         }
 
         [HttpPost("[action]")]
-        public async Task<IActionResult> Signin(SignInInputDTO input)
+        public async Task<IActionResult> Login(SignInInputDTO input)
         {
 
             var SignInOutput = new SignInOutputDTO();
@@ -84,7 +85,7 @@ namespace Foodtek.Controllers
 
                 string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
                     SqlConnection connection = new SqlConnection(connectionString);
-                string query = $"SELECT Id ,fullname  FROM Users WHERE Email = '@Email' AND Password ='@password'";
+                string query = $"SELECT Id ,fullname  FROM Users WHERE Email = @Email AND Password =@password";
                 SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@Email", input.Email);
                     command.Parameters.AddWithValue("@Password", input.password);
@@ -93,8 +94,9 @@ namespace Foodtek.Controllers
                     SqlDataAdapter adapter = new SqlDataAdapter(command);
                     DataTable dt = new DataTable();
                     adapter.Fill(dt);
+                //otp 
                    
-                if(dt.Rows.Count==0)
+                if(dt.Rows.Count == 0 )
                         throw new Exception("Invalid Email or Password");
                     
                 if (dt.Rows.Count >1 ) 
@@ -104,7 +106,7 @@ namespace Foodtek.Controllers
                 {
                     SignInOutput.Id= Convert.ToInt32( row["Id"]);
 
-                    SignInOutput.Name = Convert.ToString(row["Name"]);
+                    SignInOutput.Name = Convert.ToString(row["fullname"]);
                     }
                     return Ok (SignInOutput);    
             }
@@ -115,11 +117,33 @@ namespace Foodtek.Controllers
             }
         }
         [HttpPost("restpassword")]
-        public async Task<IActionResult> restpassword()
+        public async Task<IActionResult> restpassword(RestPasswordInputDTO input)
         {
             try
             {
-                return Ok();
+                if (!ValidationHelper.IsValidPassword(input.Password)|| input.Password != input.ConfirmPassword)
+                    return BadRequest(new { Message = "Invalid Password or Confirm Password" });
+
+                string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
+                SqlConnection connection = new SqlConnection(connectionString);
+                string query = $"UPDATE Users SET Password = @Password WHERE Email = @Email";
+                SqlCommand command = new SqlCommand(query, connection);
+                command.Parameters.AddWithValue("@Email", input.Email);
+                command.Parameters.AddWithValue("@Password", input.Password);
+                connection.Open();
+                command.CommandType = CommandType.Text;
+                int result = command.ExecuteNonQuery();
+                connection.Close();
+                if (result == 0)
+                    return StatusCode(400, "Failed to update password");
+                if (result > 1)
+                    return StatusCode(400, "Somthing wrong");
+                if (result == 1)
+                    return StatusCode(200, "Password Updated Successfully");
+
+
+
+                return Ok(new { Message = "Password Updated Successfully" });
             }
             catch (Exception ex)
             {
