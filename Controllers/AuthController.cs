@@ -96,7 +96,7 @@ namespace Foodtek.Controllers
                     SqlDataAdapter adapter = new SqlDataAdapter(command);
                     DataTable dt = new DataTable();
                     adapter.Fill(dt);
-                //otp   needed
+                //otp   needed  
                    
                 if(dt.Rows.Count == 0 )
                         throw new Exception("Invalid Email or Password");
