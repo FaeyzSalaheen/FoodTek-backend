@@ -1,25 +1,42 @@
 ﻿using Foodtek.DTOs;
+using Foodtek.DTOs.Login.Response;
 using Foodtek.DTOs.Restpassword.RestpasswordInput;
 using Foodtek.DTOs.SignIn.SignInInput;
 using Foodtek.DTOs.SignIn.SignInOutput;
+using Foodtek.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using MyTasks.Helpers.Validations;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Common;
-
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Foodtek.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+
     public class AuthController : ControllerBase
-    {
-              
+  {
+
+
+        private readonly IConfiguration _configuration;
+
+        public AuthController(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
+
+
+
 
         [HttpPost]
         [Route("[action]")]
@@ -28,51 +45,53 @@ namespace Foodtek.Controllers
             try
             {
                 if (!(ValidationHelper.IsValidEmail(input.Email) || ValidationHelper.IsValidPassword(input.password)))
-                         throw new Exception("Invalid Email or Password");
-                
+                    throw new Exception("Invalid Email or Password");
 
-                {
-
-                    string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
-                    SqlConnection connection = new SqlConnection(connectionString);
-                    SqlCommand command = new SqlCommand(
+                string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
+                SqlConnection connection = new SqlConnection(connectionString);
+                SqlCommand command = new SqlCommand(
                     "INSERT INTO Users (FullName, Email, Password, Username, CreatedBy, UpdatedBy, birthdate, role, PhoneNumber, CreatedAt, UpdatedAt) " +
                     "VALUES (@FullName, @Email, @Password, @Username, @CreatedBy, @UpdatedBy, @birthdate, @role, @PhoneNumber, @CreatedAt, @UpdatedAt)",
                      connection
-                      );
+                );
 
-                    command.Parameters.AddWithValue("@FullName", input.fullname);
-                    command.Parameters.AddWithValue("@Email", input.Email);
-                    command.Parameters.AddWithValue("@PhoneNumber", input.PhoneNumber);
-                    command.Parameters.AddWithValue("@Password", input.password);
-                    command.Parameters.AddWithValue("@Username", input.Username);
-                    command.Parameters.AddWithValue("@CreatedBy", "system");
-                    command.Parameters.AddWithValue("@UpdatedBy", "system");
-                    command.Parameters.AddWithValue("@birthdate", input.birthdate);
-                    command.Parameters.AddWithValue("@CreatedAt", input.CreatedAt);
-                    command.Parameters.AddWithValue("@UpdatedAt", input.UpdatedAt);
-                    command.Parameters.AddWithValue("@role", input.role);
-
-
-                    command.CommandType = CommandType.Text;
+                command.Parameters.AddWithValue("@FullName", input.fullname);
+                command.Parameters.AddWithValue("@Email", input.Email);
+                command.Parameters.AddWithValue("@PhoneNumber", input.PhoneNumber);
+                command.Parameters.AddWithValue("@Password", input.password);
+                command.Parameters.AddWithValue("@Username", input.Username);
+                command.Parameters.AddWithValue("@CreatedBy", "system");
+                command.Parameters.AddWithValue("@UpdatedBy", "system");
+                command.Parameters.AddWithValue("@birthdate", input.birthdate);
+                command.Parameters.AddWithValue("@CreatedAt", input.CreatedAt);
+                command.Parameters.AddWithValue("@UpdatedAt", input.UpdatedAt);
+                command.Parameters.AddWithValue("@role", 1);
+                command.CommandType = CommandType.Text;
 
                     connection.Open();
                     int result = command.ExecuteNonQuery();
                     connection.Close();
-                
-                    if (result > 0) 
-                        return StatusCode(201, "Account Created Successfully");
-                       else
-                            return StatusCode(400, "Failed to create account");
-                    
-                }
 
+                if (result > 0)
+                {
+                    
+
+                    return StatusCode(201,new
+                    {
+                    
+                    });
+                }
+                else
+                {
+                    return StatusCode(400, "Failed to create account");
+                }
             }
             catch (Exception ex)
             {
-                return StatusCode(500, $"An Error Was Occurred: {ex.Message}");
+                return StatusCode(500, $"An error occurred: {ex.Message}");
             }
         }
+
 
         [HttpPost("[action]")]
         public async Task<IActionResult> Login(SignInInputDTO input)
@@ -104,15 +123,39 @@ namespace Foodtek.Controllers
                 if (dt.Rows.Count >1 ) 
                         throw new Exception("Somthing wrong");
 
+                var claims = new[]
+      {
+            new Claim(JwtRegisteredClaimNames.Sub, input.Email),
+            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+        };
+
+                var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+                var token = new JwtSecurityToken(
+                    issuer: _configuration["Jwt:Issuer"],
+                    audience: _configuration["Jwt:Audience"],
+                    claims: claims,
+                    expires: DateTime.Now.AddHours(1),
+                    signingCredentials: creds
+                );
+
+                var tokenString = new JwtSecurityTokenHandler().WriteToken(token);
+
+                SignInOutput.Id = Convert.ToInt32(dt.Rows[0]["Id"]);
+                SignInOutput.Name = Convert.ToString(dt.Rows[0]["Fullname"]);
+
+
                 foreach (DataRow row in dt.Rows)
                 {
                     SignInOutput.Id= Convert.ToInt32( row["Id"]);
 
                     SignInOutput.Name = Convert.ToString(row["fullname"]);
                     }
-                    return Ok (SignInOutput);   
-                
-                // resopns must be JWT
+
+                var Token = JwtHelper.GenerateJwtToken(input.Email, _configuration);
+
+                return Ok(new { User = SignInOutput, Token = Token });
             }
             catch (Exception ex)
             {
