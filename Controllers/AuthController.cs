@@ -10,7 +10,7 @@ using MyTasks.Helpers.Validations;
 using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Common;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
+
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Foodtek.Controllers
@@ -27,8 +27,10 @@ namespace Foodtek.Controllers
         {
             try
             {
-                if (!ValidationHelper.IsValidEmail(input.Email) || ValidationHelper.IsValidPassword(input.password))
-                    throw new Exception("Invalid Email or Password");
+                if (!(ValidationHelper.IsValidEmail(input.Email) || ValidationHelper.IsValidPassword(input.password)))
+                         throw new Exception("Invalid Email or Password");
+                
+
                 {
 
                     string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
@@ -108,7 +110,9 @@ namespace Foodtek.Controllers
 
                     SignInOutput.Name = Convert.ToString(row["fullname"]);
                     }
-                    return Ok (SignInOutput);    
+                    return Ok (SignInOutput);   
+                
+                // resopns must be JWT
             }
             catch (Exception ex)
             {
