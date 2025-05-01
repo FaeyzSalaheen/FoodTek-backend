@@ -96,7 +96,7 @@ namespace Foodtek.Controllers
                     SqlDataAdapter adapter = new SqlDataAdapter(command);
                     DataTable dt = new DataTable();
                     adapter.Fill(dt);
-                //otp 
+                //otp   needed
                    
                 if(dt.Rows.Count == 0 )
                         throw new Exception("Invalid Email or Password");
@@ -144,12 +144,6 @@ namespace Foodtek.Controllers
                     return StatusCode(400, "Somthing wrong");
                 if (result == 1)
                     return StatusCode(200, "Password Updated Successfully");
-
-
-
-
-
-
 
                 return Ok(new { Message = "Password Updated Successfully" });
             }
