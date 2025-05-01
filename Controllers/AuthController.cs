@@ -33,7 +33,7 @@ namespace Foodtek.Controllers
 
                 {
 
-                    string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
+                    string connectionString = "Data Source=DESKTOP-E8UDJO1;Initial Catalog=FoodTek;Integrated Security=True;Trust Server Certificate=True";
                     SqlConnection connection = new SqlConnection(connectionString);
                     SqlCommand command = new SqlCommand(
                     "INSERT INTO Users (FullName, Email, Password, Username, CreatedBy, UpdatedBy, birthdate, role, PhoneNumber, CreatedAt, UpdatedAt) " +
@@ -85,7 +85,7 @@ namespace Foodtek.Controllers
                     throw new Exception("Invalid Email or Password");
 
 
-                string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
+                string connectionString = "Data Source=DESKTOP-E8UDJO1;Initial Catalog=FoodTek;Integrated Security=True;Trust Server Certificate=True";
                     SqlConnection connection = new SqlConnection(connectionString);
                 string query = $"SELECT Id ,fullname  FROM Users WHERE Email = @Email AND Password =@password";
                 SqlCommand command = new SqlCommand(query, connection);
@@ -128,7 +128,7 @@ namespace Foodtek.Controllers
                 if (!ValidationHelper.IsValidPassword(input.Password)|| input.Password != input.ConfirmPassword)
                     return BadRequest(new { Message = "Invalid Password or Confirm Password" });
 
-                string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
+                string connectionString = "Data Source=DESKTOP-E8UDJO1;Initial Catalog=FoodTek;Integrated Security=True;Trust Server Certificate=True";
                 SqlConnection connection = new SqlConnection(connectionString);
                 string query = $"UPDATE Users SET Password = @Password WHERE Email = @Email";
                 SqlCommand command = new SqlCommand(query, connection);
@@ -144,6 +144,10 @@ namespace Foodtek.Controllers
                     return StatusCode(400, "Somthing wrong");
                 if (result == 1)
                     return StatusCode(200, "Password Updated Successfully");
+
+
+
+
 
 
 
