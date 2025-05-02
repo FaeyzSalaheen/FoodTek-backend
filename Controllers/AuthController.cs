@@ -106,7 +106,7 @@ namespace Foodtek.Controllers
 
                 string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
                     SqlConnection connection = new SqlConnection(connectionString);
-                string query = $"SELECT Id ,fullname  FROM Users WHERE Email = @Email AND Password =@password";
+                string query = $"SELECT Id ,role,IsActive,Fullname  FROM Users WHERE Email = @Email AND Password =@password";
                 SqlCommand command = new SqlCommand(query, connection);
                     command.Parameters.AddWithValue("@Email", input.Email);
                     command.Parameters.AddWithValue("@Password", input.password);
@@ -153,7 +153,7 @@ namespace Foodtek.Controllers
                     SignInOutput.Name = Convert.ToString(row["fullname"]);
                     }
 
-                var Token = JwtHelper.GenerateJwtToken(input.Email, _configuration);
+                var Token = JwtHelper.GenerateJwtToken(dt.Rows, _configuration);
 
                 return Ok(new { User = SignInOutput, Token = Token });
             }
