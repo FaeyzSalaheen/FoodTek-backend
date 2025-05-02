@@ -1,15 +1,12 @@
-
-
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 
-
+// Add JWT authentication
 builder.Services.AddAuthentication("Bearer")
     .AddJwtBearer("Bearer", options =>
     {
@@ -27,15 +24,18 @@ builder.Services.AddAuthentication("Bearer")
         };
     });
 
+// Add authorization
 builder.Services.AddAuthorization();
 
+// Add Email Service
+builder.Services.AddTransient<EmailService>();
 
+// Add IMemoryCache
+builder.Services.AddMemoryCache();
 
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Swagger/OpenAPI configuration
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-
 
 var app = builder.Build();
 
@@ -45,14 +45,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseAuthentication(); 
-app.UseAuthorization(); 
 
+app.UseAuthentication(); // Authentication middleware
+app.UseAuthorization();  // Authorization middleware
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
-
+// Map controllers
 app.MapControllers();
 
 app.Run();
