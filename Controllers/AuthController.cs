@@ -15,9 +15,14 @@ using System.ComponentModel.DataAnnotations;
 using System.Data;
 using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
+using System.Net.Mail;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Foodtek.DTOs.OTP;
+using Microsoft.Extensions.Caching.Memory;
+using static System.Net.WebRequestMethods;
 
 namespace Foodtek.Controllers
 {
@@ -29,12 +34,15 @@ namespace Foodtek.Controllers
 
 
         private readonly IConfiguration _configuration;
-
-        public AuthController(IConfiguration configuration)
+        private readonly IMemoryCache _cache;
+        public AuthController(IConfiguration configuration, IMemoryCache cache)
         {
             _configuration = configuration;
+            _cache = cache;
         }
 
+
+      
 
 
 
@@ -92,7 +100,6 @@ namespace Foodtek.Controllers
             }
         }
 
-
         [HttpPost("[action]")]
         public async Task<IActionResult> Login(SignInInputDTO input)
         {
@@ -101,7 +108,7 @@ namespace Foodtek.Controllers
             try
             {
                 if (!ValidationHelper.IsValidEmail(input.Email) || !ValidationHelper.IsValidPassword(input.password))
-                    throw new Exception("Invalid Email or Password");
+                    throw new Exception("Invalid format for Email or Password");
 
 
                 string connectionString = "Data Source=DESKTOP-TAISUD8\\SQL2017;Initial Catalog=FoodTek;Integrated Security=True;Encrypt=True;Trust Server Certificate=True";
@@ -118,8 +125,8 @@ namespace Foodtek.Controllers
                 //otp 
                    
                 if(dt.Rows.Count == 0 )
-                        throw new Exception("Invalid Email or Password");
-                    
+                    return StatusCode(401, "Invalid Email or Password");
+
                 if (dt.Rows.Count >1 ) 
                         throw new Exception("Somthing wrong");
 
@@ -197,8 +204,71 @@ namespace Foodtek.Controllers
                 return StatusCode(500, new { Error = $"An error has been detected: {ex.Message}" });
             }
         }
-       
-       
+
+        [HttpPost("send-otp")]
+        public async Task<IActionResult> SendOtp([FromBody] SendOtpDTO request)
+        {
+            string email = request.Email;
+            string otp = new Random().Next(100000, 999999).ToString();
+
+            var memoryCache = new MemoryCache(new MemoryCacheOptions());
+            memoryCache.Set(email, otp, TimeSpan.FromMinutes(5));
+
+            string subject = "Your OTP Code";
+            string body = $"Your one-time password is: {otp}. It will expire in 5 minutes.";
+
+            var smtpClient = new SmtpClient(_configuration["Email:SmtpServer"])
+            {
+                Port = int.Parse(_configuration["Email:Port"]),
+                Credentials = new NetworkCredential(_configuration["Email:Username"], _configuration["Email:Password"]),
+                EnableSsl = true
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress(_configuration["Email:From"]),
+                Subject = subject,
+                Body = body,
+                IsBodyHtml = false
+            };
+
+            try
+            {
+                mailMessage.To.Add(email);
+                await smtpClient.SendMailAsync(mailMessage);
+
+                return Ok("OTP has been sent to your email.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Failed to send OTP code: {ex.Message}");
+            }
+        }
+
+        [HttpPost("verify-otp")]
+        public IActionResult VerifyOtp([FromBody] OtpVerifyDTO input)
+        {
+            if (!_cache.TryGetValue(input.Email, out string storedOtp))
+            {
+                return BadRequest("OTP is invalid or expired");
+            }
+
+            if (storedOtp != input.Otp)
+            {
+                return BadRequest("OTP does not match");
+            }
+
+            _cache.Remove(input.Email);
+
+            return Ok("OTP verified successfully");
+        }
+
+
+
+
+
+
+
 
 
 
