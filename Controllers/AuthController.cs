@@ -32,7 +32,6 @@ namespace Foodtek.Controllers
     public class AuthController : ControllerBase
   {
 
-
         private readonly IConfiguration _configuration;
         private readonly IMemoryCache _cache;
         public AuthController(IConfiguration configuration, IMemoryCache cache)
@@ -40,11 +39,6 @@ namespace Foodtek.Controllers
             _configuration = configuration;
             _cache = cache;
         }
-
-
-      
-
-
 
         [HttpPost]
         [Route("[action]")]
@@ -262,15 +256,6 @@ namespace Foodtek.Controllers
 
             return Ok("OTP verified successfully");
         }
-
-
-
-
-
-
-
-
-
 
     }
 }
