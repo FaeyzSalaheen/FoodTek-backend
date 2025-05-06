@@ -46,9 +46,11 @@ namespace Foodtek.Controllers
         {
             try
             {
+                //string connectionString = "Data Source=VAGRANT-MC0J25I\\SQLEXPRESS;Initial Catalog=Team13;User Id=admin;Password=Test@1234;Trust Server Certificate=True";
+
                 if (!(ValidationHelper.IsValidEmail(input.Email) || ValidationHelper.IsValidPassword(input.password)))
-                         throw new Exception("Invalid Email or Password");
-                
+                    throw new Exception("Invalid Email or Password");
+
 
                 {
 
@@ -60,35 +62,36 @@ namespace Foodtek.Controllers
                      connection
                 );
 
-                command.Parameters.AddWithValue("@FullName", input.fullname);
-                command.Parameters.AddWithValue("@Email", input.Email);
-                command.Parameters.AddWithValue("@PhoneNumber", input.PhoneNumber);
-                command.Parameters.AddWithValue("@Password", input.password);
-                command.Parameters.AddWithValue("@Username", input.Username);
-                command.Parameters.AddWithValue("@CreatedBy", "system");
-                command.Parameters.AddWithValue("@UpdatedBy", "system");
-                command.Parameters.AddWithValue("@birthdate", input.birthdate);
-                command.Parameters.AddWithValue("@CreatedAt", input.CreatedAt);
-                command.Parameters.AddWithValue("@UpdatedAt", input.UpdatedAt);
-                command.Parameters.AddWithValue("@role", 1);
-                command.CommandType = CommandType.Text;
+                    command.Parameters.AddWithValue("@FullName", input.fullname);
+                    command.Parameters.AddWithValue("@Email", input.Email);
+                    command.Parameters.AddWithValue("@PhoneNumber", input.PhoneNumber);
+                    command.Parameters.AddWithValue("@Password", input.password);
+                    command.Parameters.AddWithValue("@Username", input.Username);
+                    command.Parameters.AddWithValue("@CreatedBy", "system");
+                    command.Parameters.AddWithValue("@UpdatedBy", "system");
+                    command.Parameters.AddWithValue("@birthdate", input.birthdate);
+                    command.Parameters.AddWithValue("@CreatedAt", input.CreatedAt);
+                    command.Parameters.AddWithValue("@UpdatedAt", input.UpdatedAt);
+                    command.Parameters.AddWithValue("@role", 1);
+                    command.CommandType = CommandType.Text;
 
                     connection.Open();
                     int result = command.ExecuteNonQuery();
                     connection.Close();
 
-                if (result > 0)
-                {
-                    
-
-                    return StatusCode(201,new
+                    if (result > 0)
                     {
-                    
-                    });
-                }
-                else
-                {
-                    return StatusCode(400, "Failed to create account");
+
+
+                        return StatusCode(201, new
+                        {
+
+                        });
+                    }
+                    else
+                    {
+                        return StatusCode(400, "Failed to create account");
+                    }
                 }
             }
             catch (Exception ex)

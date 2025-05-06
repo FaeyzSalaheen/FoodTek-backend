@@ -1,20 +1,24 @@
-﻿using Foodtek.DTOs.GetTopItem;
+﻿using Foodtek.DTOs.GetAllNotificationByUserId;
+using Foodtek.DTOs.GetItemByCategoryId;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using System.Data;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Threading;
 
 namespace Foodtek.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class GetTopItemController : ControllerBase
+    public class GetAllNotificationByUserIdController : ControllerBase
     {
-        [HttpPost("GetTopItem")]
-        public async Task<IActionResult> GetTopItem(GetTopItemInput input)
+  
+        [HttpPost(" GetAllNotificationByUserId")]
+        public async Task<IActionResult> GetAllNotificationByUserId(GetNotificationInput input)
         {
-            
-                var GetTopItemOutput = new GetTopItemOutput();
+
+            var OutPut = new OutPut();
             try
             {
                 //string connectionString = "Data Source=VAGRANT-MC0J25I\\SQLEXPRESS;Initial Catalog=Team13;User Id=admin;Password=Test@1234;Trust Server Certificate=True";
@@ -22,11 +26,11 @@ namespace Foodtek.Controllers
                 string connectionString = "Data Source=DESKTOP-E8UDJO1;Initial Catalog=FoodTek;Integrated Security=True;Trust Server Certificate=True";
                 SqlConnection connection = new SqlConnection(connectionString);
                 SqlCommand command = new SqlCommand(
-                    "SELECT TOP 10 [ItemNameEN],[ItemNameAR] ,[ItemImage] ,[ItemDescriptionEN] ,[ItemDescriptionAR]  ,[Price] FROM Item WHERE IsActive = 1 and Id =@Id " //ORDER BY Rating DESC"
+                "SELECT n.Id, n.Title, n.Description AS Content, n.CreationDate AS[Date], un.is_read AS IsRead FROM Notifications n JOIN user_notifications un ON n.Id = un.notification_id WHERE un.user_id =@user_id ORDER BY n.CreationDate DESC;"
                     ,
                      connection
                 );
-                command.Parameters.AddWithValue("@Id", input.Id);
+                command.Parameters.AddWithValue("@user_id", input.Id);
                 command.CommandType = CommandType.Text;
                 connection.Open();
                 int result = command.ExecuteNonQuery();
@@ -37,17 +41,20 @@ namespace Foodtek.Controllers
                 adapter.Fill(dt);
                 if (dt.Rows.Count == 0)
                 {
-                    return NotFound("No category found with the provided ID.");
+                    return NotFound("Item Not found with the provided ID.");
                 }
-                GetTopItemOutput.ItemNameEN = dt.Rows[0]["ItemNameEN"].ToString();
-                GetTopItemOutput.ItemNameAR = dt.Rows[0]["ItemNameAR"].ToString();
-                GetTopItemOutput.ItemImage = dt.Rows[0]["ItemImage"].ToString();
-                GetTopItemOutput.ItemDescriptionEN = dt.Rows[0]["ItemDescriptionEN"].ToString();
-                GetTopItemOutput.ItemDescriptionAR = dt.Rows[0]["ItemDescriptionAR"].ToString();
-                GetTopItemOutput.Price = Convert.ToInt32(dt.Rows[0]["Price"]);
+                OutPut.Title = dt.Rows[0]["Title"].ToString();
+                OutPut.Content = dt.Rows[0]["Content"].ToString();
+                OutPut.Date = dt.Rows[0]["Date"].ToString();
+                OutPut.IsRead = Convert.ToBoolean(dt.Rows[0]["IsRead"]);
 
 
-                return Ok(GetTopItemOutput);
+
+                return Ok(new
+                {
+                    message = "Item fetched successfully!",
+                    data = OutPut
+                });
 
             }
             catch (Exception ex)
@@ -58,3 +65,4 @@ namespace Foodtek.Controllers
         }
     }
 }
+
