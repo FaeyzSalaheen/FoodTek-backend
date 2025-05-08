@@ -19,9 +19,8 @@ namespace Foodtek.Controllers
                 var Output = new Output();
                 try
                 {
-                //string connectionString = "Data Source=VAGRANT-MC0J25I\\SQLEXPRESS;Initial Catalog=Team13;User Id=admin;Password=Test@1234;Trust Server Certificate=True";
 
-                string connectionString = "Data Source=DESKTOP-E8UDJO1;Initial Catalog=FoodTek;Integrated Security=True;Trust Server Certificate=True";
+                string connectionString = "Data Source=VAGRANT-MC0J25I\\SQLEXPRESS;Initial Catalog=Team13;User Id=admin;Password=Test@1234;Trust Server Certificate=True";
                 SqlConnection connection = new SqlConnection(connectionString);
                     SqlCommand command = new SqlCommand(
                         "SELECT TOP 10 [ItemNameEN],[ItemNameAR] ,[ItemImage] ,[ItemDescriptionEN] ,[ItemDescriptionAR]  ,[Price] FROM Item WHERE IsActive = 1 and CategoryId =@CategoryId " //ORDER BY Rating DESC"

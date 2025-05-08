@@ -19,9 +19,8 @@ namespace Foodtek.Controllers
             {
                 var GetCategoryOutput = new GetCategoryOutput();
 
-                //string connectionString = "Data Source=VAGRANT-MC0J25I\\SQLEXPRESS;Initial Catalog=Team13;User Id=admin;Password=Test@1234;Trust Server Certificate=True";
 
-                string connectionString = "Data Source=DESKTOP-E8UDJO1;Initial Catalog=FoodTek;Integrated Security=True;Trust Server Certificate=True";
+                string connectionString = "Data Source=VAGRANT-MC0J25I\\SQLEXPRESS;Initial Catalog=Team13;User Id=admin;Password=Test@1234;Trust Server Certificate=True";
                 SqlConnection connection = new SqlConnection(connectionString);
                 SqlCommand command = new SqlCommand(
                     "select NameEN, NameAR , [Image] from Categories  where Id =@Id and IsActive = 1"
