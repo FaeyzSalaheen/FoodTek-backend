@@ -1,35 +1,21 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using Microsoft.Extensions.Configuration;
+using SendGrid.Helpers.Mail;
+using SendGrid;
 
-public class EmailService
+public static class EmailService
 {
-    private readonly IConfiguration _config;
-
-    public EmailService(IConfiguration config)
+    public static async Task SendEmail(string email , string messag , string code)
     {
-        _config = config;
-    }
-
-    public async Task SendEmailAsync(string toEmail, string subject, string body)
-    {
-        var smtpClient = new SmtpClient(_config["Email:SmtpServer"])
-        {
-            Port = int.Parse(_config["Email:Port"]),
-            Credentials = new NetworkCredential(_config["Email:Username"], _config["Email:Password"]),
-            EnableSsl = true
-        };
-
-        var mailMessage = new MailMessage
-        {
-            From = new MailAddress(_config["Email:From"]),
-            Subject = subject,
-            Body = body,
-            IsBodyHtml = false
-        };
-
-        mailMessage.To.Add(toEmail);
-
-        await smtpClient.SendMailAsync(mailMessage);
+        var apiKey = "SG.EjDU - irlTi - 8CIFKnGNxiQ.3ipLfxFaM7hO4mGPpGxIu1LTUghJwHOws0Q6KhjI448";
+        var client = new SendGridClient(apiKey);
+        var from = new EmailAddress("foodtekservis@gmail.com", "FoodTek");
+        var subject = "Sending with SendGrid is Fun";
+        var to = new EmailAddress(email, "e");
+        var plainTextContent = $"Dear user{messag} this is you OTB {code}";
+        //var htmlContent = "<strong>and easy to do anywhere, even with C#</strong>";
+        var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent,"");
+        var response = await client.SendEmailAsync(msg);
     }
 }

@@ -1,8 +1,8 @@
 ﻿namespace Foodtek.DTOs.OTP
 {
-    public class OtpVerifyDTO
+    public class OtpInput
     {
-        public string Otp { get; set; } = string.Empty;
+        public string OTP { get; set; } 
       
         public string? Email { get; set; }
       

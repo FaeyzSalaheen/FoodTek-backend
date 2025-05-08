@@ -23,6 +23,7 @@ using static System.Runtime.InteropServices.JavaScript.JSType;
 using Foodtek.DTOs.OTP;
 using Microsoft.Extensions.Caching.Memory;
 using static System.Net.WebRequestMethods;
+using Microsoft.Identity.Client;
 
 namespace Foodtek.Controllers
 {
@@ -77,6 +78,10 @@ namespace Foodtek.Controllers
                     connection.Open();
                     int result = command.ExecuteNonQuery();
                     connection.Close();
+                    Random OTPCODE = new Random();
+                    int OTP = OTPCODE.Next(100000, 999999);
+                    await EmailService.SendEmail(input.Email, "Dear user, this is your OTP: ", OTP.ToString());
+                    _cache.Set(input.Email, OTP, TimeSpan.FromMinutes(5));
 
                     if (result > 0)
                     {
@@ -188,12 +193,19 @@ namespace Foodtek.Controllers
                 command.CommandType = CommandType.Text;
                 int result = command.ExecuteNonQuery();
                 connection.Close();
+                
+                Random OTPCODE = new Random();
+                int OTP = OTPCODE.Next(100000, 999999);
+                await EmailService.SendEmail(input.Email, "Dear user, this is your OTP for rest your password : ", OTP.ToString());
+                _cache.Set(input.Email, OTP, TimeSpan.FromMinutes(5));
+
                 if (result == 0)
                     return StatusCode(400, "Failed to update password");
                 if (result > 1)
                     return StatusCode(400, "Somthing wrong");
                 if (result == 1)
                     return StatusCode(200, "Password Updated Successfully");
+                
 
                 return Ok(new { Message = "Password Updated Successfully" });
             }
@@ -203,63 +215,15 @@ namespace Foodtek.Controllers
             }
         }
 
-        [HttpPost("send-otp")]
-        public async Task<IActionResult> SendOtp([FromBody] SendOtpDTO request)
-        {
-            string email = request.Email;
-            string otp = new Random().Next(100000, 999999).ToString();
-
-            var memoryCache = new MemoryCache(new MemoryCacheOptions());
-            memoryCache.Set(email, otp, TimeSpan.FromMinutes(5));
-
-            string subject = "Your OTP Code";
-            string body = $"Your one-time password is: {otp}. It will expire in 5 minutes.";
-
-            var smtpClient = new SmtpClient(_configuration["Email:SmtpServer"])
-            {
-                Port = int.Parse(_configuration["Email:Port"]),
-                Credentials = new NetworkCredential(_configuration["Email:Username"], _configuration["Email:Password"]),
-                EnableSsl = true
-            };
-
-            var mailMessage = new MailMessage
-            {
-                From = new MailAddress(_configuration["Email:From"]),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = false
-            };
-
-            try
-            {
-                mailMessage.To.Add(email);
-                await smtpClient.SendMailAsync(mailMessage);
-
-                return Ok("OTP has been sent to your email.");
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Failed to send OTP code: {ex.Message}");
-            }
-        }
-
         [HttpPost("verify-otp")]
-        public IActionResult VerifyOtp([FromBody] OtpVerifyDTO input)
+        public IActionResult VerifyOtp([FromBody] OtpInput input)
         {
-            if (!_cache.TryGetValue(input.Email, out string storedOtp))
-            {
-                return BadRequest("OTP is invalid or expired");
-            }
-
-            if (storedOtp != input.Otp)
-            {
-                return BadRequest("OTP does not match");
-            }
-
-            _cache.Remove(input.Email);
-
-            return Ok("OTP verified successfully");
+                   throw NotImplementedException();
         }
 
+        private Exception NotImplementedException()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
