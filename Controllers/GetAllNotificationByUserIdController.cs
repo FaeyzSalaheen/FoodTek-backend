@@ -21,9 +21,8 @@ namespace Foodtek.Controllers
             var OutPut = new OutPut();
             try
             {
-                //string connectionString = "Data Source=VAGRANT-MC0J25I\\SQLEXPRESS;Initial Catalog=Team13;User Id=admin;Password=Test@1234;Trust Server Certificate=True";
 
-                string connectionString = "Data Source=DESKTOP-E8UDJO1;Initial Catalog=FoodTek;Integrated Security=True;Trust Server Certificate=True";
+                string connectionString = "Data Source=VAGRANT-MC0J25I\\SQLEXPRESS;Initial Catalog=Team13;User Id=admin;Password=Test@1234;Trust Server Certificate=True";
                 SqlConnection connection = new SqlConnection(connectionString);
                 SqlCommand command = new SqlCommand(
                 "SELECT n.Id, n.Title, n.Description AS Content, n.CreationDate AS[Date], un.is_read AS IsRead FROM Notifications n JOIN user_notifications un ON n.Id = un.notification_id WHERE un.user_id =@user_id ORDER BY n.CreationDate DESC;"
