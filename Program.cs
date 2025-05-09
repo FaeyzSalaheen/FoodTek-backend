@@ -28,7 +28,6 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAuthorization();
 
 // Add Email Service
-builder.Services.AddTransient<EmailService>();
 
 // Add IMemoryCache
 builder.Services.AddMemoryCache();
@@ -40,12 +39,13 @@ builder.Services.AddSwaggerGen();
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+app.UseSwagger();
+//app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
+    c.SwaggerEndpoint("/Swagger/v1/swagger.json", "Team13");
+    c.RoutePrefix = string.Empty;
+});
 app.UseAuthentication(); // Authentication middleware
 app.UseAuthorization();  // Authorization middleware
 
