@@ -220,7 +220,6 @@ namespace Foodtek.Controllers
         {
                    throw NotImplementedException();
         }
-
         private Exception NotImplementedException()
         {
             throw new NotImplementedException();
