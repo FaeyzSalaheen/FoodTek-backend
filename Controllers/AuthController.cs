@@ -215,6 +215,24 @@ namespace Foodtek.Controllers
             }
         }
 
+        [HttpPost("[action]")]
+        public async Task <IActionResult> SendOtp([FromBody] OtpInput input)
+        {
+            try
+            {
+                if (!ValidationHelper.IsValidEmail(input.Email))
+                    throw new Exception("Invalid Email format");
+                Random OTPCODE = new Random();
+                int OTP = OTPCODE.Next(100000, 999999);
+                await EmailService.SendEmail(input.Email, "Dear user, this is your OTP: ", OTP.ToString());
+                _cache.Set(input.Email, OTP, TimeSpan.FromMinutes(5));
+                return Ok(new { Message = "OTP sent successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred: {ex.Message}");
+            }
+        }
         [HttpPost("verify-otp")]
         public IActionResult VerifyOtp([FromBody] OtpInput input)
         {
