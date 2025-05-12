@@ -28,7 +28,7 @@ builder.Services.AddAuthentication("Bearer")
 builder.Services.AddAuthorization();
 
 // Add Email Service
-
+builder.Services.AddTransient<EmailService>();
 
 // Add IMemoryCache
 builder.Services.AddMemoryCache();
