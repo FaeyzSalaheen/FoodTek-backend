@@ -29,6 +29,7 @@ builder.Services.AddAuthorization();
 
 // Add Email Service
 
+
 // Add IMemoryCache
 builder.Services.AddMemoryCache();
 
@@ -40,12 +41,12 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
-//app.UseSwaggerUI();
-app.UseSwaggerUI(c =>
-{
-    c.SwaggerEndpoint("/Swagger/v1/swagger.json", "Team13");
-    c.RoutePrefix = string.Empty;
-});
+app.UseSwaggerUI();
+//app.UseSwaggerUI(c =>
+//{
+//    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Team13");
+//    c.RoutePrefix = string.Empty; // Set Swagger UI at the app's root
+//});
 app.UseAuthentication(); // Authentication middleware
 app.UseAuthorization();  // Authorization middleware
 

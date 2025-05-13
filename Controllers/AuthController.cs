@@ -213,7 +213,7 @@ namespace Foodtek.Controllers
                     throw new Exception("Invalid Email format");
                 Random OTPCODE = new Random();
                 int OTP = OTPCODE.Next(100000, 999999);
-                await EmailService.SendEmail(input.Email, "Dear user, this is your OTP: ", OTP.ToString());
+                await EmailService.SendEmail(email : input.Email, "Dear user, this is your OTP: ",code: OTP.ToString());
                 _cache.Set(input.Email, OTP, TimeSpan.FromMinutes(5));
                 return Ok(new { Message = "OTP sent successfully" });
             }
