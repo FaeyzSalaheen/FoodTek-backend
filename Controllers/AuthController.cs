@@ -1,29 +1,18 @@
 ﻿using Foodtek.DTOs;
-using Foodtek.DTOs.Login.Response;
 using Foodtek.DTOs.Restpassword.RestpasswordInput;
 using Foodtek.DTOs.SignIn.SignInInput;
 using Foodtek.DTOs.SignIn.SignInOutput;
 using Foodtek.Helpers;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR.Protocol;
 using Microsoft.Data.SqlClient;
-using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using MyTasks.Helpers.Validations;
-using System.ComponentModel.DataAnnotations;
 using System.Data;
-using System.Data.Common;
 using System.IdentityModel.Tokens.Jwt;
-using System.Net.Mail;
-using System.Net;
 using System.Security.Claims;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Foodtek.DTOs.OTP;
 using Microsoft.Extensions.Caching.Memory;
-using static System.Net.WebRequestMethods;
-using Microsoft.Identity.Client;
 
 namespace Foodtek.Controllers
 {
