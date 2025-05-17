@@ -11,7 +11,7 @@ namespace Foodtek.Controllers
     public class GetTopItemController : ControllerBase
     {
         [HttpPost("GetTopItem")]
-        public async Task<IActionResult> GetTopItem(GetTopItemInput input)
+        public async Task<IActionResult> GetTopItem()
         {
             
                 var GetTopItemOutput = new GetTopItemOutput();
@@ -21,11 +21,11 @@ namespace Foodtek.Controllers
 
                 SqlConnection connection = new SqlConnection(connectionString);
                 SqlCommand command = new SqlCommand(
-                    "SELECT TOP 10 [ItemNameEN],[ItemNameAR] ,[ItemImage] ,[ItemDescriptionEN] ,[ItemDescriptionAR]  ,[Price] FROM Item WHERE IsActive = 1 and Id =@Id " //ORDER BY Rating DESC"
+                    "SELECT TOP 10 [ItemNameEN],[ItemNameAR] ,[ItemImage] ,[ItemDescriptionEN] ,[ItemDescriptionAR]  ,[Price] FROM Item WHERE IsActive = 1 and  ORDER BY Rating DESC"
                     ,
                      connection
                 );
-                command.Parameters.AddWithValue("@Id", input.Id);
+                
                 command.CommandType = CommandType.Text;
                 connection.Open();
                 int result = command.ExecuteNonQuery();
@@ -34,10 +34,7 @@ namespace Foodtek.Controllers
                 SqlDataAdapter adapter = new SqlDataAdapter(command);
                 DataTable dt = new DataTable();
                 adapter.Fill(dt);
-                if (dt.Rows.Count == 0)
-                {
-                    return NotFound("No category found with the provided ID.");
-                }
+                   
                 GetTopItemOutput.ItemNameEN = dt.Rows[0]["ItemNameEN"].ToString();
                 GetTopItemOutput.ItemNameAR = dt.Rows[0]["ItemNameAR"].ToString();
                 GetTopItemOutput.ItemImage = dt.Rows[0]["ItemImage"].ToString();
